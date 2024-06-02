@@ -2,7 +2,7 @@
 //   KECCAK = "KECCAK",
 // }
 
-const HARD_CODED_URL = null;
+const URL = "https://crumbs.eurekonomicon.com";
 
 export const getOffChainClient = () => {
   const setHashValue = async (input: { hash: string; value: string }) => {
@@ -16,11 +16,11 @@ export const getOffChainClient = () => {
      * 0x2b06196afaaf044c3e6b6deba3711a1080ef87319848cb511de0bd81bccbc488
      */
 
-    const url = HARD_CODED_URL ?? "http://localhost:3000/api/hasher";
+    const offchainUrl = `${URL}/api/hasher`;
     const reqType = "POST";
     const body = JSON.stringify({ [input.hash]: input.value });
 
-    const response = await fetch(url, {
+    const response = await fetch(offchainUrl, {
       method: reqType,
       body,
       headers: {
@@ -33,8 +33,7 @@ export const getOffChainClient = () => {
   const getHashValue = async (hash: string) => {
     // http://localhost:3000/api/hasher?hash=0x2b06196afaaf044c3e6b6deba3711a1080ef87319848cb511de0bd81bccbc488
 
-    const url =
-      HARD_CODED_URL ?? `http://localhost:3000/api/hasher?hash=${hash}`;
+    const url = `${URL}/api/hasher?hash=${hash}`;
     const reqType = "GET";
 
     const response = await fetch(url, {
