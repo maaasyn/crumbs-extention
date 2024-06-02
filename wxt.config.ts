@@ -16,6 +16,7 @@ export default defineConfig({
       // for the injected script. it may not work
       "scripting",
     ],
+    homepage_url: "https://crumbs.eurekonomicon.com",
     host_permissions: ["*://*/*"],
     web_accessible_resources: [
       {
