@@ -34,7 +34,6 @@ export const useGetMessages = () => {
       transport: http(),
     });
 
-    // console.log("url again", url);
     const data = await client.readContract({
       address: CRUMBS_CONTRACT_ADDRESS,
       abi: CRUMBS_CONTRACT_ABI,
@@ -42,11 +41,10 @@ export const useGetMessages = () => {
       args: [url!],
     });
 
-    const dataResolved = await Promise.all(
-      data.map(offchainClient.getHashValue)
+    const resolvedDictionary = await offchainClient.getHashValues(
+      data as string[]
     );
-
-    console.log("Data resolved", dataResolved);
+    const dataResolved = data.map((hash) => resolvedDictionary[hash] ?? hash);
 
     setIsLoading(false);
     setMessages(

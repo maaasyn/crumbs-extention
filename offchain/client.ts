@@ -45,5 +45,29 @@ export const getOffChainClient = () => {
     return response.text();
   };
 
-  return { getHashValue, setHashValue };
+  const getHashValues = async (hashes: string[]) => {
+    // http://localhost:3000/api/hasher/get-all
+    // BODY
+    // ["0x2b06196afaaf044c3e6b6deba3711a1080ef87319848cb511de0bd81bccbc488"]
+    // RESPONSE
+    // {
+    //   "0x2b06196afaaf044c3e6b6deba3711a1080ef87319848cb511de0bd81bccbc488": "i was blind, now i can see"
+    // }
+
+    const url = `${URL}/api/hasher/get-all`;
+    const reqType = "POST";
+    const body = JSON.stringify(hashes);
+
+    const response = await fetch(url, {
+      method: reqType,
+      body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.json();
+  };
+
+  return { getHashValue, setHashValue, getHashValues };
 };
