@@ -21,6 +21,13 @@ const F = `[${FROM}]`;
 
 export default defineUnlistedScript({
   async main() {
+    let messagesCount = 0;
+    // // send log each 2 seconds
+
+    setInterval(() => {
+      console.log(F, "Messages counter:", messagesCount);
+    }, 2000);
+
     // console.log(F, "Hello injected.");
     const store = createStore();
 
@@ -66,7 +73,7 @@ export default defineUnlistedScript({
           address: CRUMBS_CONTRACT_ETH_SEPOLIA.address,
           client: createPublicClient({
             chain: sepolia,
-            transport: http(),
+            transport: http("https://ethereum-sepolia-rpc.publicnode.com"),
           }),
         });
 
@@ -75,7 +82,11 @@ export default defineUnlistedScript({
         const encodedFn = encodeFunctionData({
           abi: contract.abi,
           functionName: "storeComment",
-          args: [keccak256(toHex(url)), keccak256(toHex(eventData.message))],
+          args: [
+            keccak256(toHex(url)),
+            keccak256(toHex(eventData.message)),
+            0n,
+          ],
         });
 
         const providers = await store.getProviders();
@@ -93,10 +104,40 @@ export default defineUnlistedScript({
           account: eventData.from,
         });
 
-        const tx = await wallet.sendTransaction({
-          to: contract.address,
-          data: encodedFn,
-        });
+        try {
+          const tx = await wallet.sendTransaction({
+            to: contract.address,
+            data: encodedFn,
+          });
+
+          messagesCount++;
+
+          window.postMessage(
+            {
+              type: MessageType.PONG_SEND_MESSAGE,
+              tx,
+              isSuccess: true,
+              error: null,
+              internalId: event.data.internalId,
+            },
+            "*"
+          );
+        } catch (e) {
+          console.warn(F, "Error sending transaction:", e);
+
+          messagesCount++;
+
+          window.postMessage(
+            {
+              type: MessageType.PONG_SEND_MESSAGE,
+              tx: null,
+              isSuccess: false,
+              error: e,
+              internalId: event.data.internalId,
+            },
+            "*"
+          );
+        }
 
         // const tx = await firstProvider.provider.request({
         //   method: "eth_sendTransaction",
@@ -108,8 +149,6 @@ export default defineUnlistedScript({
         //     },
         //   ],
         // });
-
-        window.postMessage({ type: MessageType.PONG_SEND_MESSAGE, tx }, "*");
       }
     });
 

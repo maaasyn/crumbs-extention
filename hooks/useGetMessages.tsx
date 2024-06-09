@@ -5,68 +5,61 @@ import {
   CRUMBS_CONTRACT_ABI,
   CRUMBS_CONTRACT_ADDRESS,
 } from "@/on-chain/contract/details";
-import { useEffect, useState } from "react";
-import { createPublicClient, http } from "viem";
-import { sepolia } from "viem/chains";
+import { createPublicClient, http, keccak256, toHex } from "viem";
 
-export function keccakHashResolver(keccak: string): string {
-  switch (keccak) {
-    case "0x903618ee4423de6b15c1c05aaa9e60457558a25fef1e8620436245656021e3a7":
-      return "freedom at all costs";
-    case "0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658":
-      return "test";
-    default:
-      return keccak;
-  }
-}
+import { useQuery } from "@tanstack/react-query";
+import { useSelectedChainsToReadFrom } from "@/hooks/useSelectedChainsToReadFrom";
+
+const uint96ToTimestamp = (uint96: bigint): number => {
+  // take first 40 bits
+  const timestamp = Number(uint96 >> BigInt(56));
+
+  return timestamp;
+};
 
 export const useGetMessages = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [messages, setMessages] = useState<Message[]>([]);
-
+  const { chain } = useSelectedChainsToReadFrom();
   const url = useCurrentUrl();
-
   const offchainClient = getOffChainClient();
 
-  const loadComments = async () => {
-    const client = createPublicClient({
-      chain: sepolia,
-      transport: http(),
+  const client = createPublicClient({
+    chain,
+    transport: http("https://ethereum-sepolia-rpc.publicnode.com"),
+  });
+
+  const { data, error, refetch, isLoading, isFetched, isPending, isFetching } =
+    useQuery({
+      queryKey: ["messages", url],
+      queryFn: async (): Promise<Message[]> => {
+        const data = await client.readContract({
+          address: CRUMBS_CONTRACT_ADDRESS,
+          abi: CRUMBS_CONTRACT_ABI,
+          functionName: "getAllCommentsByCrumbCommitment",
+          args: [keccak256(toHex(url!))],
+        });
+
+        const resolvedDictionary = await offchainClient.getHashValues(
+          data.map((comment) => comment.commentHash)
+        );
+        const dataResolved = data.map((comment) => ({
+          address: comment.user,
+          text: resolvedDictionary[comment.commentHash] ?? comment.commentHash,
+          restData: comment.additionalData,
+        }));
+
+        return dataResolved.map((message) => ({
+          address: message.address,
+          text: message.text,
+          timestamp: uint96ToTimestamp(message.restData),
+          fromChain: chain,
+        }));
+      },
+      enabled: !!url, // only run the query if `url` is defined
     });
 
-    const data = await client.readContract({
-      address: CRUMBS_CONTRACT_ADDRESS,
-      abi: CRUMBS_CONTRACT_ABI,
-      functionName: "getCommentsByUrl",
-      args: [url!],
-    });
-
-    const resolvedDictionary = await offchainClient.getHashValues(
-      data as string[]
-    );
-    const dataResolved = data.map((hash) => resolvedDictionary[hash] ?? hash);
-
-    setIsLoading(false);
-    setMessages(
-      dataResolved.map((message) => ({
-        address:
-          "0x0000000000000000000000000000000000000000000000000000000000000000",
-        text: message,
-      }))
-    );
+  return {
+    messages: data || [],
+    refresh: refetch,
+    isLoading,
   };
-
-  useEffect(() => {
-    if (!url) return;
-
-    console.log("Fetching messages for url", url);
-
-    const fetchData = async () => {
-      await loadComments();
-    };
-
-    fetchData();
-  }, [url]);
-
-  return { messages, setMessages, refresh: loadComments, isLoading };
 };

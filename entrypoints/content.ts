@@ -10,11 +10,6 @@ export default defineContentScript({
   registration: "manifest",
   world: "ISOLATED",
   main() {
-    // interval 2 s console log hello
-
-    // setInterval(() => {
-    //   console.log(F, "Hello content script!!");
-    // }, 2000);
     console.log(F, "Hello content script!!");
 
     /// REACTING TO MESSAGES FROM POPUP
@@ -34,6 +29,7 @@ export default defineContentScript({
             type: MessageType.SEND_MESSAGE,
             message: request.message,
             from: request.from,
+            internalId: request.internalId,
           },
           "*"
         );
@@ -56,6 +52,9 @@ export default defineContentScript({
         browser.runtime.sendMessage({
           type: MessageType.PONG_SEND_MESSAGE,
           tx: event.data.tx,
+          isSuccess: event.data.isSuccess,
+          error: event.data.error,
+          ...event.data,
         });
 
         console.log(F, "Received PONG_SEND_MESSAGE", event.data);

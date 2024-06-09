@@ -7,10 +7,24 @@ import { useEffect } from "react";
 import { browser } from "wxt/browser";
 
 export const useAccount = () => {
+  const url = useCurrentUrl();
+
+  const urlBase = url ? getBaseUrl(url) : null;
+
   const [urlToAccountMap, setUrlToAccountMap] = useAtom(urlAccountMapAtom);
   const [userAddress, setUserAddress] = useAtom(accountAtom);
+  const isConnected = !!userAddress;
 
-  const url = useCurrentUrl();
+  useEffect(() => {
+    if (urlBase) {
+      const accountForUrl = urlToAccountMap[urlBase];
+      if (accountForUrl) {
+        setUserAddress(accountForUrl);
+      } else {
+        setUserAddress(null);
+      }
+    }
+  }, [urlBase, urlToAccountMap]);
 
   useEffect(() => {
     // @ts-ignore
@@ -19,16 +33,10 @@ export const useAccount = () => {
       if (request.type == MessageType.PONG_SEND_ACCOUNT) {
         setUserAddress(request.account);
 
-        console.log("Received account", request.account);
-        console.log("Current url", url);
-
-        console.log("Setting url to account map");
-        console.log({ urlToAccountMap });
-
-        if (url) {
+        if (urlBase) {
           setUrlToAccountMap((prev) => ({
             ...prev,
-            [url]: request.account,
+            [urlBase]: request.account,
           }));
         }
       }
@@ -51,7 +59,12 @@ export const useAccount = () => {
     await browser.tabs.sendMessage(tab.id!, { type: MessageType.GET_ACCOUNT });
   };
 
-  return { userAddress, handleConnectWalletClick };
+  return { userAddress, handleConnectWalletClick, isConnected };
+};
+
+const getBaseUrl = (url: string) => {
+  const urlObject = new URL(url);
+  return `${urlObject.protocol}//${urlObject.host}`;
 };
 
 export default useAccount;

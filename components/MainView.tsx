@@ -1,9 +1,13 @@
 import { Body } from "@/components/Body";
-import { SingleMessage } from "@/components/Message";
+import { SingleMessage } from "@/components/SingeMessage";
 import { Tabs } from "@/components/types";
 import React, { useEffect, useRef } from "react";
 import { useGetMessages } from "../hooks/useGetMessages";
 import { Header } from "./Header";
+import { usePendingComments } from "@/hooks/usePendingComments";
+import useCurrentUrl from "@/hooks/useGetUrl";
+import useAccount from "@/hooks/magmi/useAccount";
+import SinglePendingComment from "@/components/SinglePendingComment";
 
 export const Chat = ({
   userAddress,
@@ -12,12 +16,21 @@ export const Chat = ({
   userAddress: string | null;
   handleSubmit: (input: string) => void;
 }) => {
-  const { messages, isLoading } = useGetMessages();
+  const { messages, isLoading, refresh } = useGetMessages();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const [inputValue, setInputValue] = React.useState("");
+
+  const currentUrl = useCurrentUrl();
+  const { pendingComments } = usePendingComments(currentUrl);
+
+  const { isConnected, handleConnectWalletClick } = useAccount();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // const { isConnected } = useAccount();
 
   useEffect(() => {
     scrollToBottom();
@@ -41,26 +54,48 @@ export const Chat = ({
             userAddress={userAddress}
           />
         ))}
+        {pendingComments.map((comment) => (
+          <SinglePendingComment key={comment.internalId} comment={comment} />
+        ))}
         <div ref={messagesEndRef} />
       </Body>
       <form
-        className="flex p-2 border-black border-t-2 bg-purple-200"
+        className="flex p-2 border-black border-t-2 bg-purple-200 gap-1"
         onSubmit={(e) => {
           e.preventDefault();
-          // @ts-ignore
-          handleSubmit(e.target[0]!.value as string);
-          // handleSubmit("test");
+          handleSubmit(inputValue);
+          setInputValue("");
         }}>
-        <input
-          type="text"
-          placeholder="Type your message here..."
-          className="border-black border-2 shadow-[2px_2px] p-2 rounded flex-1 "
-        />
-        <button
-          type="submit"
-          className="ml-2 bg-amber-500 hover:bg-amber-700 font-bold py-2 px-4 rounded border-black border-2 shadow-[2px_2px]">
-          Send
-        </button>
+        {isConnected ? (
+          <>
+            <textarea
+              placeholder="Type your message here..."
+              className="border-black border-2 shadow-[2px_2px] p-2 rounded flex-1"
+              value={inputValue}
+              rows={1}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <button
+              type="submit"
+              className="ml-2 bg-amber-500 hover:bg-amber-700 font-bold py-2 px-4 rounded border-black border-2 shadow-[2px_2px]">
+              Send
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col gap-1 w-full">
+              <div className="text-center">
+                To send a message, connect your wallet.
+              </div>
+              <button
+                type="button"
+                className="ml-2 bg-amber-500 hover:bg-amber-700 font-bold py-2 px-4 rounded border-black border-2 shadow-[2px_2px]"
+                onClick={handleConnectWalletClick}>
+                Connect Wallet
+              </button>
+            </div>
+          </>
+        )}
       </form>
     </>
   );

@@ -1,8 +1,8 @@
 {
-  "name": "wxt-starter",
-  "description": "manifest.json description",
+  "name": "crumbs",
+  "description": "crumbs",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -15,6 +15,9 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@tanstack/query-sync-storage-persister": "^5.40.0",
+    "@tanstack/react-query": "^5.40.1",
+    "@tanstack/react-query-persist-client": "^5.40.1",
     "@wagmi/connectors": "^4.3.10",
     "@wagmi/core": "^2.10.3",
     "@webext-core/messaging": "^1.4.0",
@@ -23,6 +26,8 @@
     "mipd": "^0.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-query": "^3.39.3",
+    "ulid": "^2.3.0",
     "viem": "^2.12.0",
     "vite-plugin-node-polyfills": "^0.22.0"
   },

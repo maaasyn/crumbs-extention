@@ -66,7 +66,7 @@ export const getOffChainClient = () => {
       },
     });
 
-    return response.json();
+    return response.json() as Promise<{ [key: string]: string }>;
   };
 
   return { getHashValue, setHashValue, getHashValues };
