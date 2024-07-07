@@ -27,6 +27,35 @@ export const Settings = ({
             <p className="text-sm font-bold">Account:</p>
             <p className="text-sm">{userAddress}</p>
           </div>
+          <div className="px-4">
+            <p className="text-sm font-bold">Feedback:</p>
+            <details>
+              <summary>how to</summary>
+              <pre className="text-sm whitespace-pre-wrap">
+                First of all thank you for using crumbs, and clicking throught
+                the app!
+                <br />
+                If you want to share your feedback with me you can reach me at
+                github @maaasyn or twitter @0xmaaasyn.
+                <br />
+                You can also leave feedback this link below (directly or
+                throught the extension):
+                <br />
+                <a
+                  href="https://crumbs.eurekonomicon.com/feedback"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Use the browser API to open a new tab with the URL
+                    chrome.tabs.create({
+                      url: "https://crumbs.eurekonomicon.com/feedback",
+                    });
+                  }}>
+                  https://crumbs.eurekonomicon.com/feedback
+                </a>
+              </pre>
+            </details>
+          </div>
+          {/* </div> */}
 
           {/* url to account map */}
           <div className="px-4">
