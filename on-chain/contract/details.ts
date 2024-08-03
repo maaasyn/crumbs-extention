@@ -1,7 +1,7 @@
 import { ChainNameToId } from "@/on-chain/chains";
 
 export const CRUMBS_CONTRACT_ADDRESS =
-  "0x57A74872eEdd6aA8a80Fb625db13c1ee5a9B51Fe";
+  "0xCf39ed9EA9d1E72E10Fba670683DC3717116D19a";
 
 export const CRUMBS_CONTRACT_ETH_SEPOLIA = {
   address: CRUMBS_CONTRACT_ADDRESS,

@@ -24,9 +24,9 @@ export default defineUnlistedScript({
     let messagesCount = 0;
     // // send log each 2 seconds
 
-    setInterval(() => {
-      console.log(F, "Messages counter:", messagesCount);
-    }, 2000);
+    // setInterval(() => {
+    //   console.log(F, "Messages counter:", messagesCount);
+    // }, 2000);
 
     // console.log(F, "Hello injected.");
     const store = createStore();

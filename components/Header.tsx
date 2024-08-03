@@ -40,7 +40,7 @@ export const Header = ({ setTab, currentTab }: HeaderProps) => {
 const ChatHeader: FC<{ setTab: (tab: Tabs) => void }> = ({ setTab }) => {
   return (
     <>
-      <select>
+      <select className="text-sm text-left bg-stone-200 rounded px-1 py-1 border-black border-2 shadow-[2px_2px]">
         <option>sepolia</option>
       </select>
       <h1 className="text-2xl font-bold">Crumbs</h1>

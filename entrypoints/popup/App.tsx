@@ -26,7 +26,7 @@ const App = () => {
 };
 
 const Content = () => {
-  const { isPending, sendMessage, tx } = useSendMessage();
+  const { isPending, sendMessage } = useSendMessage();
   const url = useCurrentUrl();
 
   const handleSubmit = async (input: string) => {
