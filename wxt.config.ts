@@ -8,7 +8,7 @@ export default defineConfig({
   }),
   manifest: {
     name: "Crumbs",
-    version: "0.0.3", // Alfa.
+    version: "0.0.4", // Alfa.
     description:
       "Crumbs is a dApp that lets you leave and view permanent, on-chain comments on any website, enhancing communal web interaction.",
     permissions: [
